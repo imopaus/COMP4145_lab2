@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Strategy Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>MSFT Golden Cross Dashboard</h1>
+        <div class="nav-links">
+            <a href="index.html">Price Chart</a>
+            <a href="stats.html">Trade Statistics</a>
+            <a href="trades.html">Detailed Trades</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <h2 class="title">Price Chart</h2>
+        <div class="card chart-box">
+            <canvas id="priceChart"></canvas>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

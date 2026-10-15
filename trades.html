@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detailed Trades</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>MSFT Golden Cross Dashboard</h1>
+        <div class="nav-links">
+            <a href="index.html">Price Chart</a>
+            <a href="stats.html">Trade Statistics</a>
+            <a href="trades.html">Detailed Trades</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <h2 class="title">Detailed Trade Record</h2>
+        <div class="card table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Buy Date</th>
+                        <th>Buy Price</th>
+                        <th>Sell Date</th>
+                        <th>Sell Price</th>
+                        <th>Holding Days</th>
+                        <th>Profit %</th>
+                        <th>Sell Reason</th>
+                    </tr>
+                </thead>
+                <tbody id="tradeTableBody"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

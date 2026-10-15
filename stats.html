@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Statistics</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>MSFT Golden Cross Dashboard</h1>
+        <div class="nav-links">
+            <a href="index.html">Price Chart</a>
+            <a href="stats.html">Trade Statistics</a>
+            <a href="trades.html">Detailed Trades</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <h2 class="title">Overall Trade Statistics</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Total trades</div>
+                <div class="value" id="totalTrades">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Winning trades</div>
+                <div class="value" id="winningTrades">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Losing trades</div>
+                <div class="value" id="losingTrades">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Win rate</div>
+                <div class="value" id="winRate">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Average profit</div>
+                <div class="value" id="avgProfit">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Avg holding period</div>
+                <div class="value" id="avgHolding">-</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
