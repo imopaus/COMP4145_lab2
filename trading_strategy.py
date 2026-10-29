@@ -82,20 +82,21 @@ def implement_strategy(data):
     return pd.DataFrame(positions)
 
 # Analyze the results
-def analyze_results(positions):
+def summarize_positions(positions):
     if positions.empty:
         return {
             'total_trades': 0,
             'win_trades': 0,
             'loss_trades': 0,
-            'win_rate': 0,
-            'avg_profit': 0,
-            'avg_holding': 0,
+            'win_rate': 0.0,
+            'avg_profit': 0.0,
+            'avg_win': 0.0,
+            'avg_loss': 0.0,
+            'avg_holding': 0.0,
             'target_reached': 0,
             'max_period': 0,
         }
 
-    # Summary statistics
     total_trades = len(positions)
     win_trades = len(positions[positions['ProfitPct'] > 0])
     loss_trades = total_trades - win_trades
@@ -104,13 +105,12 @@ def analyze_results(positions):
     avg_profit = positions['ProfitPct'].mean()
     avg_win = positions[positions['ProfitPct'] > 0]['ProfitPct'].mean() if win_trades > 0 else 0
     avg_loss = positions[positions['ProfitPct'] <= 0]['ProfitPct'].mean() if loss_trades > 0 else 0
-
     avg_holding = positions['HoldingDays'].mean()
 
     target_reached = len(positions[positions['SellReason'] == 'Target reached'])
     max_period = len(positions[positions['SellReason'] == 'Max holding period'])
 
-    summary = {
+    return {
         'total_trades': total_trades,
         'win_trades': win_trades,
         'loss_trades': loss_trades,
@@ -123,28 +123,73 @@ def analyze_results(positions):
         'max_period': max_period,
     }
 
-    return summary
+
+def analyze_results(positions):
+    if positions.empty:
+        print("No trading signals detected")
+        return positions
+
+    summary = summarize_positions(positions)
+    total_trades = summary['total_trades']
+    win_trades = summary['win_trades']
+    win_rate = summary['win_rate']
+    avg_profit = summary['avg_profit']
+
+    print("\n===== Trading Strategy Results (Golden Cross)=====")
+    print(f"Total Trades: {total_trades}")
+    print(f"Winning Trades: {win_trades} ({win_rate:.2f}%)")
+    print(f"Losing Trades: {summary['loss_trades']}")
+    print(f"Average Profit: {avg_profit:.2f}%")
+
+    return positions
 
 
-def build_dashboard_data():
-    data = get_stock_data("MSFT")
+def build_dashboard_data(symbol="MSFT"):
+    data = get_stock_data(symbol)
     data = calculate_moving_averages(data)
     data = identify_golden_cross(data)
     positions = implement_strategy(data)
-    summary = analyze_results(positions)
+    summary = summarize_positions(positions)
 
-    chart_data = data.reset_index().rename(columns={'index': 'Date'}).copy()
-    chart_data['Date'] = chart_data['Date'].dt.strftime('%Y-%m-%d')
-    chart_data = chart_data.astype(object).where(pd.notna(chart_data), None)
+    price_history = data.reset_index().rename(columns={'index': 'Date'})
+    price_history = price_history[['Date', 'Close', 'MA50', 'MA200']].copy()
+    price_history['Date'] = price_history['Date'].dt.strftime('%Y-%m-%d')
 
-    payload = {
-        'symbol': 'MSFT',
+    sanitized_price_history = []
+    for row in price_history.to_dict(orient='records'):
+        sanitized_price_history.append({
+            'Date': row['Date'],
+            'Close': None if pd.isna(row['Close']) else float(row['Close']),
+            'MA50': None if pd.isna(row['MA50']) else float(row['MA50']),
+            'MA200': None if pd.isna(row['MA200']) else float(row['MA200']),
+        })
+
+    trades = positions.copy()
+    if not trades.empty:
+        trades = trades[['BuyDate', 'BuyPrice', 'SellDate', 'SellPrice', 'HoldingDays', 'ProfitPct', 'SellReason']].copy()
+        trades['BuyDate'] = trades['BuyDate'].dt.strftime('%Y-%m-%d')
+        trades['SellDate'] = trades['SellDate'].dt.strftime('%Y-%m-%d')
+        sanitized_trades = []
+        for row in trades.to_dict(orient='records'):
+            sanitized_trades.append({
+                'BuyDate': row['BuyDate'],
+                'BuyPrice': None if pd.isna(row['BuyPrice']) else float(row['BuyPrice']),
+                'SellDate': row['SellDate'],
+                'SellPrice': None if pd.isna(row['SellPrice']) else float(row['SellPrice']),
+                'HoldingDays': None if pd.isna(row['HoldingDays']) else int(row['HoldingDays']),
+                'ProfitPct': None if pd.isna(row['ProfitPct']) else float(row['ProfitPct']),
+                'SellReason': row['SellReason'],
+            })
+    else:
+        sanitized_trades = []
+
+    return {
+        'symbol': symbol,
         'summary': summary,
-        'price_history': chart_data[['Date', 'Close', 'MA50', 'MA200']].to_dict(orient='records'),
-        'trades': positions.reset_index(drop=True).to_dict(orient='records'),
+        'price_history': sanitized_price_history,
+        'trades': sanitized_trades,
     }
 
-    return payload
 
 # Main function
 def main():
@@ -161,17 +206,13 @@ def main():
     positions = implement_strategy(data)
 
     # Analyze results
-    summary = analyze_results(positions)
-
-    print("\n===== Trading Strategy Results (Golden Cross)=====")
-    print(f"Total Trades: {summary['total_trades']}")
-    print(f"Winning Trades: {summary['win_trades']} ({summary['win_rate']:.2f}%)")
-    print(f"Losing Trades: {summary['loss_trades']}")
-    print(f"Average Profit: {summary['avg_profit']:.2f}%")
+    analyze_results(positions)
 
     print("\nDetailed Trades:")
-    print(positions.to_string())
+    if not positions.empty:
+        print(positions.to_string())
 
+    # Return the detailed positions dataframe
     return positions
 
 
